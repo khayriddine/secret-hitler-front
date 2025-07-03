@@ -1,6 +1,7 @@
 <div
   class="min-h-screen flex flex-col items-center justify-center bg-[#1a0a0a] text-[#c9a467] p-6 font-serif"
 >
+  <!-- Game Title -->
   <h1
     class="text-4xl font-bold mb-8 tracking-wide text-center"
     style="text-shadow: 2px 2px #6b0000"
@@ -8,6 +9,50 @@
     SECRET HITLER
   </h1>
 
+  <!-- Avatar Carousel -->
+  <div class="mb-8 w-full max-w-md">
+    <h3 class="text-xl font-header text-[#c9a467] mb-4 text-center">
+      SELECT YOUR PROFILE
+    </h3>
+    <div class="relative">
+      <!-- Left Arrow -->
+      <button
+        (click)="scrollCarousel(-1)"
+        class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-[#2c1a1a] p-2 rounded-full border border-[#c9a467] text-[#c9a467] hover:bg-[#8b0000] transition"
+      >
+        &lt;
+      </button>
+
+      <!-- Carousel Container -->
+      <div
+        #carousel
+        class="flex overflow-x-auto snap-x snap-mandatory gap-4 py-4 px-2 scroll-smooth hide-scrollbar"
+      >
+        <div
+          *ngFor="let avatar of avatars; let i = index"
+          (click)="selectAvatar(i)"
+          [class.border-[#8b0000]="selectedAvatarIndex === i"
+          class="flex-shrink-0 snap-center w-20 h-20 rounded-full border-2 border-[#c9a467] overflow-hidden cursor-pointer transition-all hover:scale-110"
+        >
+          <img
+            [src]="avatar"
+            [alt]="'Avatar ' + i"
+            class="w-full h-full object-cover"
+          />
+        </div>
+      </div>
+
+      <!-- Right Arrow -->
+      <button
+        (click)="scrollCarousel(1)"
+        class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-[#2c1a1a] p-2 rounded-full border border-[#c9a467] text-[#c9a467] hover:bg-[#8b0000] transition"
+      >
+        &gt;
+      </button>
+    </div>
+  </div>
+
+  <!-- Username Input -->
   <input
     type="text"
     placeholder="Enter your name"
@@ -15,29 +60,34 @@
     class="w-full max-w-xs mb-6 p-3 rounded-md bg-[#2c1a1a] border-2 border-[#c9a467] placeholder-[#e8d8b8] text-[#e8d8b8] focus:outline-none focus:ring-2 focus:ring-[#8b0000] transition"
   />
 
-  <div class="flex gap-6 mb-6">
+  <!-- Action Buttons -->
+  <div class="flex flex-col gap-4 w-full max-w-xs">
     <button
-      [disabled]="!isLoading"
       (click)="createGame()"
-      class="bg-gradient-to-r from-[#8b0000] to-[#6b0000] border-2 border-[#c9a467] px-6 py-3 rounded-md font-semibold tracking-wide hover:bg-gradient-to-l hover:from-[#6b0000] hover:to-[#8b0000] disabled:opacity-50 transition"
+      class="bg-gradient-to-r from-[#8b0000] to-[#6b0000] border-2 border-[#c9a467] px-6 py-3 rounded-md font-semibold tracking-wide hover:bg-gradient-to-l hover:from-[#6b0000] hover:to-[#8b0000] transition"
     >
-      Create Game
+      CREATE GAME
     </button>
-  </div>
 
-  <div class="w-full max-w-xs">
-    <input
-      type="text"
-      placeholder="Lobby Code"
-      [(ngModel)]="roomId"
-      class="w-full p-3 rounded-md mb-3 bg-[#2c1a1a] border-2 border-[#c9a467] placeholder-[#e8d8b8] text-[#e8d8b8] focus:outline-none focus:ring-2 focus:ring-[#8b0000] transition"
-    />
+    <div class="relative flex items-center">
+      <div
+        class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#e8d8b8]"
+      >
+        #
+      </div>
+      <input
+        type="text"
+        placeholder="Enter lobby code"
+        [(ngModel)]="roomId"
+        class="w-full pl-8 p-3 rounded-md bg-[#2c1a1a] border-2 border-[#c9a467] placeholder-[#e8d8b8] text-[#e8d8b8] focus:outline-none focus:ring-2 focus:ring-[#8b0000] transition"
+      />
+    </div>
+
     <button
-      [disabled]="!isLoading"
       (click)="joinGame()"
-      class="w-full bg-gradient-to-r from-[#8b0000] to-[#6b0000] border-2 border-[#c9a467] px-6 py-3 rounded-md font-semibold tracking-wide hover:bg-gradient-to-l hover:from-[#6b0000] hover:to-[#8b0000] disabled:opacity-50 transition"
+      class="bg-gradient-to-r from-[#8b0000] to-[#6b0000] border-2 border-[#c9a467] px-6 py-3 rounded-md font-semibold tracking-wide hover:bg-gradient-to-l hover:from-[#6b0000] hover:to-[#8b0000] transition"
     >
-      Join Game
+      JOIN GAME
     </button>
   </div>
 </div>

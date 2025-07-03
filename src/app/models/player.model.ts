@@ -8,5 +8,5 @@ export interface Player {
   isConnected: boolean;
   isPresident: boolean;
   isChancellor: boolean;
-  profilePicUrl: string;
+  avatar: string;
 }

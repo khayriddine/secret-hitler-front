@@ -34,7 +34,6 @@ export class LobbyComponent implements OnInit {
   ngOnInit(): void {
     //on new friend join add him
     this.signalr.onRoomUpdated((room: Room) => {
-      console.log(room);
       this.room = room;
     });
     this.signalr.onUserConnected(() => {
@@ -48,7 +47,6 @@ export class LobbyComponent implements OnInit {
       this.router.navigate(['/game', this.roomId])
     );
     this.signalr.connectionEstablished$.subscribe((b) => {
-      console.log(b);
       if (b === true) {
         //get list friends
         this.signalr.getRoomUpdates(this.roomId);

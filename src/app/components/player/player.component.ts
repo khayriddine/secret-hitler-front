@@ -39,6 +39,13 @@ export class PlayerComponent {
     return null;
   }
 
+  get avatar(): string {
+    return (
+      this.player.avatar ||
+      '/images/avatars/1d53efdf-f3d9-4a26-909f-b8325e189ca5.jpg'
+    );
+  }
+
   getAvatarClasses(): string {
     let classes = 'w-12 h-12 rounded-full border-4 transition-all';
 

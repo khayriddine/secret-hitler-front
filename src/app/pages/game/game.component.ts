@@ -105,7 +105,6 @@ export class GameComponent implements OnInit {
   }
   ngOnInit(): void {
     this.signalr.onGameUpdated((game: Game) => {
-      console.log(game);
       this.game = game;
       this.handleGame(game);
     });
@@ -116,6 +115,11 @@ export class GameComponent implements OnInit {
 
     this.signalr.onGameStarted(() => {
       if (this.roomId) this.signalr.getGameUpdates(this.roomId);
+      this.signalr.setAvatar(
+        this.roomId!,
+        this.currentUserId!,
+        sessionStorage.getItem('selectedAvatar')!
+      );
     });
 
     this.signalr.connectionEstablished$.subscribe((b) => {
@@ -124,6 +128,11 @@ export class GameComponent implements OnInit {
       }
     });
   }
+
+  createArray(n: number): any[] {
+    return new Array(n);
+  }
+
   toggleInfo() {
     this.infoVisible = !this.infoVisible;
   }
@@ -246,11 +255,11 @@ export class GameComponent implements OnInit {
               break;
 
             case ExecutiveAction.InvestigateLoyalty:
-              this.specialElectionVisible = true;
+              this.actionPromptVisible = true;
               break;
 
             case ExecutiveAction.SpecialElection:
-              this.specialElectionVisible = true;
+              this.actionPromptVisible = true;
               break;
           }
         }
@@ -268,7 +277,11 @@ export class GameComponent implements OnInit {
     }
   }
   shouldVote(game: Game): boolean {
-    return !!this.currentUserId && game.votes[this.currentUserId] === undefined;
+    return (
+      !!this.currentUserId &&
+      this.currentPlayer.isAlive &&
+      game.votes[this.currentUserId] === undefined
+    );
   }
 
   showVoteDialog() {
@@ -291,10 +304,25 @@ export class GameComponent implements OnInit {
     );
   }
 
+  get lastPresidentName(): string {
+    return (
+      this.game?.players.find(
+        (p) => p.userId === this.game?.previousPresidentId
+      )?.name || 'Last President'
+    );
+  }
+
   get chancellorName(): string {
     return (
       this.game?.players.find((p) => p.userId === this.game?.chancellorId)
         ?.name || 'Chancellor'
+    );
+  }
+
+  get lastChancellorName(): string {
+    return (
+      this.game?.players.find((p) => p.userId === this.game?.chancellorId)
+        ?.name || 'Last Chancellor'
     );
   }
 
@@ -420,9 +448,13 @@ export class GameComponent implements OnInit {
           (p) => p.userId !== this.currentUserId
         );
       case ExecutiveAction.InvestigateLoyalty:
-        return this.game.players;
+        return this.game.alivePlayers.filter(
+          (p) => p.userId !== this.currentUserId
+        );
       case ExecutiveAction.SpecialElection:
-        return this.game.alivePlayers;
+        return this.game.alivePlayers.filter(
+          (p) => p.userId !== this.currentUserId
+        );
       default:
         return [];
     }

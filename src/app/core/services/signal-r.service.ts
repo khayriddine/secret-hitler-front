@@ -148,6 +148,9 @@ export class SignalRService {
   public handleVetoResponse(roomId: string, approved: boolean) {
     return this.hubConnection.invoke('HandleVetoResponse', roomId, approved);
   }
+  public setAvatar(roomId: string, userId: string, avatar: string) {
+    return this.hubConnection.invoke('SetAvatar', roomId, userId, avatar);
+  }
 
   // 🔁 Game Listener registration
 

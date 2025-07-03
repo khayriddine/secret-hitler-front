@@ -4,7 +4,7 @@
     <!-- Base Avatar Image -->
     <img
       *ngIf="!roleRevealMode || !visibleRole"
-      [src]="'https://i.pravatar.cc/150?img=1'"
+      [src]="avatar"
       alt="{{ player.name }}"
       [class]="getAvatarClasses()"
     />
@@ -32,18 +32,6 @@
       <div
         *ngIf="isCurrentChancellor"
         class="w-3 h-3 rounded-full bg-green-500 border border-green-700 shadow-sm"
-      ></div>
-
-      <!-- Previous President -->
-      <div
-        *ngIf="isPreviousPresident"
-        class="w-3 h-3 rounded-full bg-yellow-300 border border-yellow-500 shadow-sm"
-      ></div>
-
-      <!-- Previous Chancellor -->
-      <div
-        *ngIf="isPreviousChancellor"
-        class="w-3 h-3 rounded-full bg-green-300 border border-green-500 shadow-sm"
       ></div>
     </div>
 
@@ -76,6 +64,5 @@
     {{
       roleRevealMode && visibleRole ? roleToString(player.role) : player.name
     }}
-    <span *ngIf="isCurrentUser" class="text-blue-400">(You)</span>
   </div>
 </div>
