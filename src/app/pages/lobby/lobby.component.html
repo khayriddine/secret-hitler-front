@@ -1,1 +1,132 @@
-<p>lobby works!</p>
+<div
+  class="min-h-screen bg-[#1a0a0a] text-[#e8d8b8] flex flex-col items-center p-6 font-serif"
+>
+  <!-- Lobby Title -->
+  <h1
+    class="text-4xl font-bold tracking-wide text-[#c9a467] mb-6"
+    style="text-shadow: 1px 1px #6b0000"
+  >
+    LOBBY
+  </h1>
+
+  <!-- Room Code -->
+  <div class="text-sm text-[#c9a467]/80 mb-1">Game Code</div>
+  <div
+    class="text-2xl font-mono bg-[#2c1a1a] px-4 py-2 rounded border border-[#c9a467] mb-8 flex items-center gap-3"
+  >
+    {{ roomId }}
+    <button
+      (click)="copyCode()"
+      title="Copy code"
+      class="text-[#c9a467] hover:text-white transition"
+    >
+      📋
+    </button>
+  </div>
+
+  <!-- Main layout: Player list + Room stats -->
+  <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- 👥 Players List -->
+    <ul
+      class="bg-[#2c1a1a] rounded-lg border border-[#c9a467]/30 p-4 space-y-3 shadow-inner"
+    >
+      <li
+        *ngFor="let member of room?.members"
+        class="flex justify-between items-center border-b border-[#c9a467]/20 pb-2"
+      >
+        <!-- Left: Name + status -->
+        <div class="flex items-center gap-2">
+          <span class="text-[#e8d8b8]">{{ member.name }}</span>
+          <span
+            *ngIf="disconnectedPlayers.includes(member.userId)"
+            class="text-orange-400 text-xs"
+            title="Disconnected"
+          >
+            ⓘ
+          </span>
+        </div>
+
+        <!-- Right: Host tag or kick icon -->
+        <div class="flex items-center gap-2">
+          <span
+            *ngIf="member.name === room?.createdBy"
+            class="text-[#c9a467] text-sm italic"
+            >Host</span
+          >
+          <button
+            *ngIf="isHost"
+            (click)="kickFromRoom(member)"
+            class="text-red-400 hover:text-red-600 text-xs transition"
+            title="Kick player"
+          >
+            ❌
+          </button>
+        </div>
+      </li>
+    </ul>
+
+    <!-- 📊 Room Stats -->
+    <div
+      class="bg-[#2c1a1a] rounded-lg border border-[#c9a467]/30 p-4 text-sm shadow-inner"
+    >
+      <h2 class="text-lg font-bold mb-4 text-[#c9a467] tracking-wide">
+        Room Info
+      </h2>
+      <ul class="space-y-2 text-[#e8d8b8]">
+        <li>
+          <span class="text-[#c9a467]/80">Players joined:</span>
+          <span class="font-semibold">{{ room?.members?.length || 0 }}</span>
+        </li>
+        <li>
+          <span class="text-[#c9a467]/80">Roles:</span>
+          <span class="font-semibold text-blue-300">
+            {{ room?.liberals }} Liberals </span
+          >,
+          <span class="font-semibold text-red-400">
+            {{ room?.fascists }} Fascists
+          </span>
+        </li>
+        <li>
+          <span class="text-[#c9a467]/80">Created by:</span>
+          <span class="font-semibold">{{ room?.createdBy || "Unknown" }}</span>
+        </li>
+        <li>
+          <span class="text-[#c9a467]/80">Status:</span>
+          <span
+            class="font-semibold"
+            [class.text-green-400]="room?.status === 'Ready'"
+            [class.text-yellow-400]="room?.status !== 'Not Ready'"
+          >
+            {{ room?.status }}
+          </span>
+        </li>
+      </ul>
+
+      <!-- 🔧 Planned Actions -->
+      <div *ngIf="actionsList.length > 0" class="mt-4">
+        <h3 class="font-semibold mb-2 text-[#c9a467]">Planned Actions:</h3>
+        <ul class="list-disc list-inside space-y-1 text-[#e8d8b8]/90">
+          <li *ngFor="let action of actionsList">{{ action }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🚪 Action Buttons -->
+  <div class="mt-10 flex gap-6 flex-wrap justify-center">
+    <button
+      *ngIf="isHost"
+      (click)="startGame()"
+      class="bg-gradient-to-r from-[#8b0000] to-[#6b0000] border-2 border-[#c9a467] text-[#e8d8b8] font-bold px-6 py-3 rounded-md uppercase tracking-wide hover:from-[#6b0000] hover:to-[#8b0000] transition shadow-lg"
+    >
+      Start Game
+    </button>
+
+    <button
+      (click)="leaveLobby()"
+      class="bg-red-700 hover:bg-red-800 text-white font-bold px-6 py-3 rounded-md uppercase tracking-wide shadow-md"
+    >
+      Leave Lobby
+    </button>
+  </div>
+</div>

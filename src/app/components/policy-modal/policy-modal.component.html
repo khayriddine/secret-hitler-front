@@ -1,0 +1,28 @@
+<div
+  *ngIf="visible"
+  class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50"
+>
+  <div
+    class="bg-[#1a0a0a] border-2 border-[#c9a467] rounded-xl p-6 w-full max-w-md text-[#e8d8b8] font-serif shadow-lg"
+  >
+    <h2
+      class="text-2xl font-bold mb-4 text-center"
+      style="text-shadow: 1px 1px #6b0000"
+    >
+      {{ title }}
+    </h2>
+    <p class="mb-6 text-center text-[#c9a467]">{{ instruction }}</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div
+        *ngFor="let card of cards; let i = index"
+        (click)="selectCard(i)"
+        class="cursor-pointer bg-[#2c1a1a] border border-[#c9a467] rounded-lg px-4 py-6 text-center hover:scale-105 transition transform"
+      >
+        <span class="text-xl font-semibold tracking-wider">
+          {{ card | uppercase }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,1 +1,439 @@
-<p>game works!</p>
+<div
+  class="min-h-screen bg-gray-900 text-white py-4 flex flex-col items-center space-y-6"
+  *ngIf="tableLayout"
+>
+  <!-- Title bar: title + info button -->
+  <div
+    class="flex items-center space-x-2 cursor-pointer select-none"
+    (click)="toggleInfo()"
+  >
+    <h2 class="text-2xl font-bold">Secret Hitler</h2>
+    <!-- Info icon (you can replace with SVG or icon library) -->
+    <button aria-label="Toggle info" class="focus:outline-none">
+      <svg
+        class="w-6 h-6 text-gray-400 hover:text-white transition"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="16" x2="12" y2="12" />
+        <line x1="12" y1="8" x2="12.01" y2="8" />
+      </svg>
+    </button>
+  </div>
+  <button (click)="restartGame()">♻️ Restart</button>
+  <!-- Slide down info panel -->
+  <div
+    [@slideDown]="infoVisible ? 'open' : 'closed'"
+    class="overflow-hidden max-w-4xl w-full text-gray-300"
+    style="transition: max-height 0.3s ease"
+    [style.maxHeight]="infoVisible ? '400px' : '0px'"
+  >
+    <!-- Your info content here -->
+    <div
+      *ngIf="game"
+      class="p-6 bg-vintage-dark border-2 border-vintage-gold rounded-lg shadow-lg mb-6 bg-vintage-pattern"
+    >
+      <!-- Game Status Header -->
+      <div class="mb-4 pb-3 border-b border-vintage-gold/30">
+        <h2
+          class="text-xl font-header text-vintage-gold flex items-center justify-between"
+        >
+          <span>Game Status</span>
+          <span
+            class="text-base px-3 py-1 bg-[#2c1a1a] rounded-full border border-vintage-gold"
+          >
+            {{ getPhaseName(game.phase) }}
+            {{
+              game.currentExecutiveAction
+                ? " - " + getExecutiveActionName(game.currentExecutiveAction)
+                : ""
+            }}
+          </span>
+        </h2>
+      </div>
+
+      <div
+        class="flex flex-wrap items-center justify-between gap-6 text-vintage-paper"
+      >
+        <!-- Game Info Section -->
+        <div class="flex flex-col space-y-3">
+          <div class="flex flex-wrap items-center gap-4">
+            <div class="text-lg font-header">
+              <span class="text-vintage-gold font-bold">Room:</span>
+              {{ roomId }}
+            </div>
+            <div class="text-lg font-header">
+              <span class="text-vintage-gold font-bold">Players:</span>
+              {{ game.players.length }} ({{ game.alivePlayers.length }} active)
+            </div>
+          </div>
+
+          <!-- Policy Track -->
+          <div class="mt-3">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-sm font-semibold text-vintage-gold"
+                >Policy Enactment:</span
+              >
+              <div class="flex space-x-2">
+                <span class="text-xs text-vintage-paper/80">
+                  Liberal: {{ game.enactedLiberalPolicies }}/5
+                </span>
+                <span class="text-xs text-vintage-paper/80 ml-2">
+                  Fascist: {{ game.enactedFascistPolicies }}/6
+                </span>
+              </div>
+            </div>
+            <div class="flex h-5 bg-gray-700 rounded-full overflow-hidden">
+              <!-- Liberal Policies -->
+              <div
+                class="bg-blue-600 flex items-center justify-center text-xs text-white"
+                [style.width]="(game.enactedLiberalPolicies / 5) * 100 + '%'"
+              >
+                {{ game.enactedLiberalPolicies }}
+              </div>
+              <!-- Fascist Policies -->
+              <div
+                class="bg-red-700 flex items-center justify-center text-xs text-white"
+                [style.width]="(game.enactedFascistPolicies / 6) * 100 + '%'"
+              >
+                {{ game.enactedFascistPolicies }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Decks Section -->
+        <div class="flex space-x-6">
+          <!-- Draw Pile -->
+          <div class="flex flex-col items-center">
+            <div
+              class="relative w-20 h-28 bg-gray-800 border-2 border-vintage-gold rounded-md shadow-md flex items-center justify-center"
+            >
+              <span class="text-xl font-bold">{{ game.drawPile.length }}</span>
+            </div>
+            <span class="mt-2 text-sm text-vintage-gold">Draw Pile</span>
+          </div>
+
+          <!-- Discard Pile -->
+          <div class="flex flex-col items-center">
+            <div
+              class="relative w-20 h-28 bg-gray-800 border-2 border-vintage-gold rounded-md shadow-md flex items-center justify-center"
+            >
+              <span class="text-xl font-bold">{{
+                game.discardPile.length
+              }}</span>
+            </div>
+            <span class="mt-2 text-sm text-vintage-gold">Discard Pile</span>
+          </div>
+
+          <!-- Election Tracker -->
+          <div class="flex flex-col items-center">
+            <div
+              class="w-20 h-28 bg-gray-800 border-2 border-vintage-gold rounded-md shadow-md flex flex-col items-center justify-center p-3"
+            >
+              <span class="text-xs text-vintage-gold mb-2"
+                >Failed Elections</span
+              >
+              <div class="flex space-x-2 mb-2">
+                <div
+                  *ngFor="let i of [1, 2, 3]"
+                  class="w-4 h-4 rounded-full border border-vintage-gold"
+                  [class.bg-vintage-red]="i <= game.electionTracker"
+                  [class.bg-gray-600]="i > game.electionTracker"
+                ></div>
+              </div>
+              <div
+                *ngIf="game.electionTracker >= 3"
+                class="text-xs text-vintage-red font-bold mt-1"
+              >
+                CHAOS!
+              </div>
+            </div>
+            <span class="mt-2 text-sm text-vintage-gold"
+              >Tracker: {{ game.electionTracker }}/3</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Current Government -->
+      <div class="mt-6 pt-4 border-t border-vintage-gold/30">
+        <h3
+          class="text-lg font-header text-vintage-gold mb-3 flex items-center"
+        >
+          Current Government
+          <span
+            *ngIf="game.vetoProposed"
+            class="ml-2 text-sm px-2 py-1 bg-red-900/50 rounded-full"
+          >
+            Veto Proposed
+          </span>
+        </h3>
+        <div class="flex flex-col md:flex-row gap-4">
+          <div
+            class="flex-1 bg-[#2c1a1a] border-2 border-vintage-gold rounded-lg p-4"
+          >
+            <div class="flex items-center space-x-3">
+              <div
+                class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold border-2 border-vintage-gold"
+              >
+                P
+              </div>
+              <div>
+                <div class="font-semibold">President:</div>
+                <div class="text-lg">{{ presidentName }}</div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="flex-1 bg-[#2c1a1a] border-2 border-vintage-gold rounded-lg p-4"
+          >
+            <div class="flex items-center space-x-3">
+              <div
+                class="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center text-white font-bold border-2 border-vintage-gold"
+              >
+                C
+              </div>
+              <div>
+                <div class="font-semibold">Chancellor:</div>
+                <div class="text-lg">{{ chancellorName }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔼 Top Row -->
+  <div class="flex justify-center gap-4">
+    <ng-container *ngFor="let player of tableLayout.top">
+      <app-player
+        [player]="player"
+        [currentPlayer]="currentPlayer"
+        [roleRevealMode]="roleRevealMode"
+        [isCurrentUser]="false"
+        [isCurrentPresident]="player.userId === game?.presidentId"
+        [isCurrentChancellor]="player.userId === game?.chancellorId"
+        [isPreviousPresident]="player.userId === game?.previousPresidentId"
+        [isPreviousChancellor]="player.userId === game?.previousChancellorId"
+        [isDead]="!player.isAlive"
+        (toggle)="onPlayerClick($event)"
+      >
+      </app-player>
+    </ng-container>
+  </div>
+
+  <!-- 🧭 Middle Section: Side Players + Board (Responsive) -->
+  <div class="flex justify-center items-center w-full max-w-6xl relative">
+    <!-- LEFT side players -->
+    <div class="flex flex-col items-center gap-8 min-w-[80px]">
+      <app-player
+        *ngFor="let player of tableLayout.left; let i = index"
+        [player]="player"
+        [currentPlayer]="currentPlayer"
+        [roleRevealMode]="roleRevealMode"
+        [isCurrentUser]="false"
+        [isCurrentPresident]="player.userId === game?.presidentId"
+        [isCurrentChancellor]="player.userId === game?.chancellorId"
+        [isPreviousPresident]="player.userId === game?.previousPresidentId"
+        [isPreviousChancellor]="player.userId === game?.previousChancellorId"
+        [isDead]="!player.isAlive"
+        (toggle)="onPlayerClick($event)"
+      ></app-player>
+    </div>
+
+    <!-- CENTER BOARD -->
+    <div class="flex flex-col items-center">
+      <img
+        [src]="fascistBoardImage"
+        alt="Fascist Board"
+        class="w-full max-w-xl rounded shadow-md"
+      />
+      <img
+        [src]="liberalBoardImage"
+        alt="Liberal Board"
+        class="w-full max-w-xl rounded shadow-md"
+      />
+    </div>
+
+    <!-- RIGHT side players -->
+    <div class="flex flex-col items-center gap-8 min-w-[80px]">
+      <app-player
+        *ngFor="let player of tableLayout.right; let i = index"
+        [player]="player"
+        [currentPlayer]="currentPlayer"
+        [roleRevealMode]="roleRevealMode"
+        [isCurrentUser]="false"
+        [isCurrentPresident]="player.userId === game?.presidentId"
+        [isCurrentChancellor]="player.userId === game?.chancellorId"
+        [isPreviousPresident]="player.userId === game?.previousPresidentId"
+        [isPreviousChancellor]="player.userId === game?.previousChancellorId"
+        [isDead]="!player.isAlive"
+        (toggle)="onPlayerClick($event)"
+      ></app-player>
+    </div>
+  </div>
+
+  <!-- 🔽 Bottom Row -->
+  <div class="flex justify-center gap-4 mt-6">
+    <ng-container *ngFor="let player of tableLayout.bottom">
+      <app-player
+        [player]="player"
+        [currentPlayer]="currentPlayer"
+        [roleRevealMode]="roleRevealMode"
+        [isCurrentUser]="player.userId === currentUserId"
+        [isCurrentPresident]="player.userId === game?.presidentId"
+        [isCurrentChancellor]="player.userId === game?.chancellorId"
+        [isPreviousPresident]="player.userId === game?.previousPresidentId"
+        [isPreviousChancellor]="player.userId === game?.previousChancellorId"
+        [isDead]="!player.isAlive"
+        (toggle)="onPlayerClick($event)"
+      >
+      </app-player>
+      {{ player.userId === game?.presidentId }}
+    </ng-container>
+  </div>
+</div>
+
+<!-- ✅ Vote Modal -->
+<div
+  *ngIf="isVoteModalOpen"
+  class="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center"
+>
+  <div
+    class="bg-gray-800 text-white rounded-lg shadow-lg p-6 w-80 text-center animate-fade-in"
+  >
+    <h2 class="text-xl font-bold mb-4">Vote on the Government</h2>
+    <p class="text-sm text-gray-300 mb-6">
+      Do you approve the government of
+      <span class="font-semibold text-blue-400">{{ presidentName }}</span> and
+      <span class="font-semibold text-green-400">{{ chancellorName }}</span
+      >?
+    </p>
+
+    <div class="flex justify-around">
+      <button
+        class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded font-bold shadow"
+        (click)="castVote(true)"
+      >
+        Ja!
+      </button>
+
+      <button
+        class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded font-bold shadow"
+        (click)="castVote(false)"
+      >
+        Nein!
+      </button>
+    </div>
+  </div>
+</div>
+<!-- ✅ Discard Modal -->
+<div
+  *ngIf="policyModalConfig.visible"
+  class="fixed inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center p-6 z-50"
+>
+  <div class="bg-gray-900 text-white rounded-lg shadow-lg p-6 w-96 text-center">
+    <h2 class="text-xl font-bold mb-4">{{ policyModalConfig.title }}</h2>
+    <p class="mb-4">{{ policyModalConfig.instruction }}</p>
+    <div class="flex justify-around space-x-4">
+      <div
+        *ngFor="let card of policyModalConfig.cards; let i = index"
+        (click)="policyModalConfig.onSelect(i)"
+        class="cursor-pointer rounded shadow-lg p-4 w-20 h-32 flex items-center justify-center text-lg font-semibold hover:scale-110 transition-transform duration-200"
+        [ngClass]="{
+          'bg-red-700': card === PolicyType.Fascist,
+          'bg-blue-600': card === PolicyType.Liberal
+        }"
+        title="Click to select this card"
+      >
+        {{ card }}
+      </div>
+    </div>
+    <p class="mt-4 text-sm text-gray-400">Click a card to select it.</p>
+  </div>
+</div>
+<!-- Special Election Modal -->
+<!-- Universal Action Modal -->
+<div
+  *ngIf="actionPromptVisible && game && game.currentExecutiveAction"
+  class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+>
+  <div
+    class="bg-[#1a0a0a] border-2 border-[#c9a467] rounded-lg shadow-xl w-full max-w-md overflow-hidden"
+  >
+    <!-- Dynamic Header -->
+    <div
+      class="bg-gradient-to-r from-[#8b0000] to-[#6b0000] p-4 border-b-2 border-[#c9a467]"
+    >
+      <h2
+        class="text-2xl font-bold text-[#c9a467] text-center font-serif tracking-wide"
+      >
+        {{ getActionTitle(game.currentExecutiveAction) }}
+      </h2>
+      <p class="text-[#e8d8b8] text-center mt-1 text-sm">
+        {{ getActionSubtitle(game.currentExecutiveAction!) }}
+      </p>
+    </div>
+
+    <!-- Action Content -->
+    <div class="p-4 bg-[#1a0a0a]">
+      <p class="text-[#e8d8b8] text-center mb-4 italic">
+        {{ getActionInstruction(game.currentExecutiveAction) }}
+      </p>
+
+      <!-- Player List (for selection actions) -->
+      <div
+        *ngIf="needsPlayerSelection(game.currentExecutiveAction)"
+        class="max-h-[60vh] overflow-y-auto pr-2"
+      >
+        <ul class="space-y-2">
+          <li
+            *ngFor="let player of getTargetPlayers(game.currentExecutiveAction)"
+            (click)="handlePlayerSelection(player)"
+            class="group flex items-center justify-between p-3 bg-[#2c1a1a] border border-[#c9a467]/30 rounded-md cursor-pointer transition-all hover:bg-[#3a2828] hover:border-[#c9a467]/60"
+          >
+            <span class="font-medium text-[#e8d8b8] group-hover:text-white">
+              {{ player.name }}
+            </span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Policy Peek Display -->
+      <div
+        *ngIf="game.currentExecutiveAction === ExecutiveAction.PolicyPeek"
+        class="grid grid-cols-3 gap-2 mt-4"
+      >
+        <div
+          *ngFor="let card of game.drawPile.slice(0, 3)"
+          class="h-24 flex items-center justify-center border-2 border-[#c9a467] rounded-md"
+          [class.bg-blue-900]="card === 0"
+          [class.bg-red-900]="card === 1"
+        >
+          {{ card === 0 ? "LIBERAL" : "FASCIST" }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-[#1a0a0a] p-3 border-t-2 border-[#c9a467]/30 text-center">
+      <button
+        (click)="cancelAction()"
+        class="px-4 py-2 bg-[#8b0000] hover:bg-[#6b0000] text-[#e8d8b8] rounded border border-[#c9a467] transition-colors"
+      >
+        {{
+          game.currentExecutiveAction === ExecutiveAction.PolicyPeek
+            ? "Close"
+            : "Cancel"
+        }}
+      </button>
+    </div>
+  </div>
+</div>

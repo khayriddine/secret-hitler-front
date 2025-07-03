@@ -1,34 +1,43 @@
 <div
-  class="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-4"
+  class="min-h-screen flex flex-col items-center justify-center bg-[#1a0a0a] text-[#c9a467] p-6 font-serif"
 >
-  <h1 class="text-3xl font-blod mb-6">Secret Hitler</h1>
+  <h1
+    class="text-4xl font-bold mb-8 tracking-wide text-center"
+    style="text-shadow: 2px 2px #6b0000"
+  >
+    SECRET HITLER
+  </h1>
 
   <input
     type="text"
     placeholder="Enter your name"
     [(ngModel)]="username"
-    class="w-full max-w-xs mb-4 p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none"
+    class="w-full max-w-xs mb-6 p-3 rounded-md bg-[#2c1a1a] border-2 border-[#c9a467] placeholder-[#e8d8b8] text-[#e8d8b8] focus:outline-none focus:ring-2 focus:ring-[#8b0000] transition"
   />
 
-  <div class="flex gap-4 mb-4">
+  <div class="flex gap-6 mb-6">
     <button
+      [disabled]="!isLoading"
       (click)="createGame()"
-      class="bg-green-600"
-      hover:bg-green-700
-      px-4
-      py-2
-      rounded
+      class="bg-gradient-to-r from-[#8b0000] to-[#6b0000] border-2 border-[#c9a467] px-6 py-3 rounded-md font-semibold tracking-wide hover:bg-gradient-to-l hover:from-[#6b0000] hover:to-[#8b0000] disabled:opacity-50 transition"
     >
       Create Game
     </button>
   </div>
 
-  <div class="w-full max-w-xs mb-4">
+  <div class="w-full max-w-xs">
     <input
       type="text"
-      (click)="joinGame()"
-      class="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none"
       placeholder="Lobby Code"
+      [(ngModel)]="roomId"
+      class="w-full p-3 rounded-md mb-3 bg-[#2c1a1a] border-2 border-[#c9a467] placeholder-[#e8d8b8] text-[#e8d8b8] focus:outline-none focus:ring-2 focus:ring-[#8b0000] transition"
     />
+    <button
+      [disabled]="!isLoading"
+      (click)="joinGame()"
+      class="w-full bg-gradient-to-r from-[#8b0000] to-[#6b0000] border-2 border-[#c9a467] px-6 py-3 rounded-md font-semibold tracking-wide hover:bg-gradient-to-l hover:from-[#6b0000] hover:to-[#8b0000] disabled:opacity-50 transition"
+    >
+      Join Game
+    </button>
   </div>
 </div>
